@@ -1,12 +1,10 @@
 package com.sparta.springcore.cotroller;
 
 import com.sparta.springcore.dto.ProductMypriceRequestDto;
-import com.sparta.springcore.security.UserDetailsImpl;
 import com.sparta.springcore.service.ProductService;
 import com.sparta.springcore.dto.ProductRequestDto;
 import com.sparta.springcore.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,20 +19,18 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // 로그인한 회원이 등록한 상품들 조회
+    // 등록된 전체 상품 목록 조회
     @GetMapping("/api/products")
-    public List<Product> getProducts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.getUser().getId();
-        return productService.getProducts(userId);
+    public List<Product> getProducts()  {
+        List<Product> products = this.productService.getProducts();
+        // 응답 보내기
+        return products;
     }
 
     // 신규 상품 등록
     @PostMapping("/api/products")
-    public Product createProduct(@RequestBody ProductRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        // 로그인 되어 있는 ID
-        Long userId = userDetails.getUser().getId();
-
-        Product product = productService.createProduct(requestDto, userId);
+    public Product createProduct(@RequestBody ProductRequestDto requestDto)  {
+        Product product = this.productService.createProduct(requestDto);
         // 응답 보내기
         return product;
     }
@@ -45,12 +41,4 @@ public class ProductController {
         Product product = this.productService.updateProduct(id, requestDto);
         return product.getId();
     }
-
-    // (관리자용) 등록된 모든 상품 목록 조회
-    @GetMapping("/api/admin/products")
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
-    }
-
-
 }
